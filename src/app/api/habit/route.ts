@@ -1,24 +1,36 @@
 import dbPool from "@/app/utils/mysql.utils";
 import { NextResponse } from "next/server";
 
-// MINHA THIS IS THE FOLDER STRUCTURE THAT WORKS FOR REQUESTS.
-// YOU NEED TO REFACTOR YOUR OTHER API FOLDER /src/api.
-
 export async function POST(request: Request) {
 
   const newData = await request.json();
   const habit = newData.habit;
   const date = newData.date;
-  console.log("newData", newData);
+
   const dbConn = await dbPool.getConnection();
-  const [results] = await dbConn.execute(
+  
+  await dbConn.execute(
     `insert into habitlist (habit, date) values (?, ?)
     `,
     [habit, date]
   );
+
+  await dbConn.commit();
+
+  const [results] = await dbConn.execute(
+    `select habit from habitlist where date = ?`, [date]
+  );
+  
+  if(results instanceof Array) {
+    console.log('results', results);
+    return NextResponse.json(results.map((x:any) => 
+      x.habit
+    ));
+  };
+
   dbConn.release();
 
-  return NextResponse.json({ name: "Reed Barger" });
+  return NextResponse.json("");
 }
 
 

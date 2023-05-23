@@ -1,5 +1,6 @@
 import mysql from "mysql2";
 
+
 const dbPool = mysql.createPool({
   host: "localhost",
   user: "root",
